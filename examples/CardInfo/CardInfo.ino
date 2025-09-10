@@ -5,27 +5,37 @@ Sd2Card card;
 SdVolume volume;
 SdFile root;
 
-// change this to match your SD shield or module;
-// Default SPI on Uno and Nano: pin 10
-// Arduino Ethernet shield: pin 4
-// Adafruit SD shields and modules: pin 10
-// Sparkfun SD shield: pin 8
-// MKR Zero SD: SDCARD_SS_PIN
-const int chipSelect = 10;
+/*
+#if defined(ARDUINO_BLACKPILL_F411CE)
+//              MOSI  MISO  SCLK
+SPIClass SPIbus(PA7,  PA6,  PA5);
+#define CS_PIN PA4
+#else
+//              MOSI  MISO  SCLK
+SPIClass SPIbus(PC12, PC11, PC10);
+#define CS_PIN PD2
+#endif
+*/
+
+// #define SDCARD_SS_PIN PD2
+constexpr uint8_t SDCARD_SS_PIN = PD2;
 
 void setup() {
   // Open serial communications and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
+  SPI.setMOSI(PC12);
+  SPI.setMISO(PC11);
+  SPI.setSCLK(PC10);
 
   Serial.print("\nInitializing SD card...");
 
   // we'll use the initialization code from the utility libraries
   // since we're just testing if the card is working!
-  if (!card.init(SPI_HALF_SPEED, chipSelect)) {
+  if (!card.init(SPI_HALF_SPEED, SDCARD_SS_PIN)) {
     Serial.println("initialization failed. Things to check:");
     Serial.println("* is a card inserted?");
     Serial.println("* is your wiring correct?");
